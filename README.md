@@ -1,49 +1,49 @@
-# Video Frame Extractor
+# Real-Time Drone Detection with YOLO and OpenCV
 
-A simple Python tool to extract frames from multiple videos and save them as `.jpg` images for building computer vision datasets.
+This project performs **real-time drone detection from a webcam feed** using a trained **Ultralytics YOLO** model and displays the results side by side:
 
-## Overview
+- **Left panel:** original camera frame
+- **Right panel:** detection result with bounding boxes, confidence scores, and FPS
 
-This project helps automate dataset creation from video sources. It reads a list of input videos, calculates how many frames to extract from each one, samples frames at regular intervals, and saves them into a target output folder.
-
-It is useful for tasks such as:
-
-* Object Detection
-* Drone Detection
-* Image Classification
-* Tracking
-* Data Annotation
+The script loads a custom model from `weights/best.pt`, captures video from the default camera, runs inference on each frame, and shows the processed output in a desktop window. fileciteturn0file0
 
 ---
 
 ## Features
 
-* Extract frames from multiple videos
-* Evenly distribute the target number of images across all videos
-* Automatically create the output folder if it does not exist
-* Save extracted frames as sequentially numbered `.jpg` files
-* Handle short videos by extracting all available frames when needed
-* Lightweight and easy to run
+- Real-time object detection from a live camera
+- Custom YOLO model support
+- Bounding box and confidence label rendering
+- FPS display for performance monitoring
+- Side-by-side comparison between raw and detected frames
+- Simple keyboard exit with `q` fileciteturn0file0
 
 ---
 
 ## Project Structure
 
-```bash
-.
-├── extract_frames.py
-├── README.md
-└── requirements.txt
+```text
+project/
+├── main.py                # your Python script
+└── weights/
+    └── best.pt            # trained YOLO model weights
 ```
 
-> Recommended: rename your current script to `extract_frames.py` for better readability.
+> If your script has a different filename, replace `main.py` in the commands below with your actual filename.
 
 ---
 
 ## Requirements
 
-* Python 3.8+
-* OpenCV
+- Python 3.9+
+- A working webcam
+- A trained YOLO model at `weights/best.pt`
+
+Python libraries used by the script:
+
+- `opencv-python`
+- `numpy`
+- `ultralytics` fileciteturn0file0
 
 ---
 
@@ -52,11 +52,11 @@ It is useful for tasks such as:
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo-url>
-cd <your-repo-folder>
+git clone <your-repository-url>
+cd <your-repository-folder>
 ```
 
-### 2. Create a virtual environment
+### 2. Create and activate a virtual environment (recommended)
 
 **Windows**
 
@@ -65,7 +65,7 @@ python -m venv venv
 venv\Scripts\activate
 ```
 
-**Linux / macOS**
+**macOS / Linux**
 
 ```bash
 python3 -m venv venv
@@ -75,139 +75,176 @@ source venv/bin/activate
 ### 3. Install dependencies
 
 ```bash
-pip install -r requirements.txt
+pip install opencv-python numpy ultralytics
 ```
 
-### `requirements.txt`
+---
 
-```txt
-opencv-python>=4.8.0
+## Model Setup
+
+Place your trained YOLO weight file at:
+
+```text
+weights/best.pt
 ```
+
+The script uses this path by default through the constant below:
+
+```python
+MODEL_PATH = "weights/best.pt"
+```
+
+If your model is stored elsewhere, update the `MODEL_PATH` value inside the script. fileciteturn0file0
+
+---
+
+## Configuration
+
+The main configurable parameters are defined at the top of the script:
+
+```python
+MODEL_PATH = "weights/best.pt"
+CAMERA_INDEX = 0
+CONF_THRES = 0.25
+```
+
+### Meaning of each parameter
+
+- `MODEL_PATH`: path to the trained YOLO model
+- `CAMERA_INDEX`: webcam index (`0` is usually the default camera)
+- `CONF_THRES`: confidence threshold for detections
+
+You can change these values depending on your hardware and model setup. fileciteturn0file0
 
 ---
 
 ## Usage
 
-Update the input video paths and output folder inside the script:
-
-```python
-danh_sach_video = [
-    "/home/loc_nguyen/AI_DRONE_DETECTION/data1.mp4",
-    "/home/loc_nguyen/AI_DRONE_DETECTION/data2.mp4"
-]
-
-thu_muc_luu_anh = "/home/loc_nguyen/AI_DRONE_DETECTION/data_images"
-```
-
-Then run:
+Run the script with:
 
 ```bash
-python extract_frames.py
+python main.py
+```
+
+What happens when the script starts:
+
+1. The YOLO model is loaded
+2. The webcam is opened
+3. Frames are captured continuously
+4. The model performs detection on each frame
+5. The program draws bounding boxes and confidence labels on detected objects
+6. FPS is calculated and displayed on screen
+7. Two frames are shown side by side in a window named **Drone Detection** fileciteturn0file0
+
+To quit the application, press:
+
+```text
+q
 ```
 
 ---
 
-## Example
+## Output Display
 
-Extract a total of `1000` frames from all input videos:
+The application shows a combined window containing:
+
+- **Original frame** labeled as `Chua detect`
+- **Processed frame** labeled as `Sau detect`
+- FPS text on both sides
+- Detection boxes with the label `Phat hien drone: <confidence>` when an object is found fileciteturn0file0
+
+---
+
+## Notes and Important Considerations
+
+### 1. The model file is not included automatically
+This project depends on a custom YOLO weight file:
+
+```text
+weights/best.pt
+```
+
+Without this file, the script will not run successfully. Make sure you provide your trained model before running the project. fileciteturn0file0
+
+### 2. Camera access is required
+The script uses OpenCV webcam capture:
 
 ```python
-extract_frames_from_videos(danh_sach_video, thu_muc_luu_anh, target_total_frames=1000)
+cap = cv2.VideoCapture(CAMERA_INDEX)
 ```
 
-Generated files will look like:
+If no camera is available, or if the camera index is incorrect, the application will fail to open the stream. fileciteturn0file0
 
-```bash
-dataset_img_0000.jpg
-dataset_img_0001.jpg
-dataset_img_0002.jpg
-...
-```
+### 3. This is a desktop-based real-time demo
+The script opens an OpenCV display window and is intended for local execution on a machine with GUI support. It may not work properly in headless environments such as some cloud servers or remote terminals.
+
+### 4. Performance depends on hardware
+Inference speed and FPS depend on:
+
+- your CPU/GPU
+- webcam resolution
+- YOLO model size
+- system load
+
+The script sets the camera resolution to **1280x720**, which may affect performance on lower-end systems. fileciteturn0file0
+
+### 5. Detection quality depends on your trained model
+This repository contains inference code only. Actual detection accuracy depends on the training quality, dataset quality, and the custom `best.pt` model you use.
+
+### 6. Current labels in the UI are written in Vietnamese
+Although this README is in English, the on-screen messages inside the script are currently Vietnamese, for example:
+
+- `Khong the mo camera`
+- `Nhan phim 'q' de thoat.`
+- `Phat hien drone`
+- `Chua detect`
+- `Sau detect` fileciteturn0file0
+
+If you want a fully English project, you may also want to translate these UI strings in the Python source.
 
 ---
 
-## Main Function
+## Troubleshooting
+
+### Error: model file not found
+Check that this file exists:
+
+```text
+weights/best.pt
+```
+
+### Error: cannot open camera
+Try changing:
 
 ```python
-extract_frames_from_videos(video_paths, output_folder, target_total_frames=1000)
+CAMERA_INDEX = 0
 ```
 
-### Parameters
+to another index such as `1` or `2`. Also make sure no other application is using the webcam.
 
-| Parameter             | Type   | Description                                       |
-| --------------------- | ------ | ------------------------------------------------- |
-| `video_paths`         | `list` | List of input video paths                         |
-| `output_folder`       | `str`  | Folder where extracted images will be saved       |
-| `target_total_frames` | `int`  | Total number of frames to extract from all videos |
+### Low FPS
+Possible improvements:
 
----
-
-## How It Works
-
-1. Count the number of input videos
-2. Divide the target frame count across videos
-3. Open each video with OpenCV
-4. Compute the extraction interval
-5. Save frames at regular steps
-6. Print progress logs in the terminal
-
----
-
-## Sample Output
-
-```bash
-Processing video 1/2: data1.mp4
-  -> Total frames: 12000 | Target: ~500 images | Interval: every 24 frames
-  -> Completed video 1. Saved 500 images.
-
-Processing video 2/2: data2.mp4
-  -> Total frames: 8000 | Target: ~500 images | Interval: every 16 frames
-  -> Completed video 2. Saved 500 images.
-
-Done! Successfully extracted 1000 images to: /home/loc_nguyen/AI_DRONE_DETECTION/data_images
-```
-
----
-
-## Use Cases
-
-This project is helpful when you want to:
-
-* Build an image dataset from raw videos
-* Prepare images for annotation tools such as CVAT, Roboflow, or LabelImg
-* Reduce manual screenshot work
-* Sample frames evenly to avoid highly redundant data
-
----
-
-## Notes
-
-* If a video path is invalid, the script will skip that file and continue
-* If a video has fewer frames than requested, all frames will be extracted
-* For large extraction jobs, make sure the output directory has enough storage space
-* You can adjust `target_total_frames` depending on your dataset needs
+- reduce camera resolution
+- use a smaller YOLO model
+- run on a machine with GPU acceleration
+- close other heavy applications
 
 ---
 
 ## Possible Improvements
 
-You can extend this project by adding:
+If you continue developing this project, useful next steps could include:
 
-* CLI arguments with `argparse`
-* FPS-based frame extraction
-* Automatic resize before saving
-* Blur or duplicate-frame filtering
-* Progress bar support with `tqdm`
-* Batch loading videos from a folder instead of hardcoding paths
-
----
-
-## Author
-
-**Loc Nguyen**
+- saving detection results to video files
+- adding screenshot capture
+- logging detections with timestamps
+- supporting video files in addition to webcam input
+- exporting requirements to `requirements.txt`
+- adding command-line arguments for model path, camera index, and confidence threshold
 
 ---
 
 ## License
 
-This project is licensed under the MIT License.
+Add your preferred license here, for example MIT, Apache-2.0, or a private/internal license depending on how you plan to publish the repository.
